@@ -1,5 +1,5 @@
 <.header>
-  Listing Products
+  All Products
   <:actions>
     <.link patch={~p"/products/new"}>
       <.button>New Product</.button>
@@ -7,31 +7,46 @@
   </:actions>
 </.header>
 
-<.table
+<div
+  class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12 p-12 max-w-7xl mx-auto"
   id="products"
-  rows={@streams.products}
-  row_click={fn {_id, product} -> JS.navigate(~p"/products/#{product}") end}
+  phx-update="stream"
 >
-  <:col :let={{_id, product}} label="Amount"><%= product.amount %></:col>
-  <:col :let={{_id, product}} label="Description"><%= product.description %></:col>
-  <:col :let={{_id, product}} label="Name"><%= product.name %></:col>
-  <:col :let={{_id, product}} label="Stock"><%= product.stock %></:col>
-  <:col :let={{_id, product}} label="Thumbnail"><%= product.thumbnail %></:col>
-  <:action :let={{_id, product}}>
-    <div class="sr-only">
-      <.link navigate={~p"/products/#{product}"}>Show</.link>
+  <div
+    :for={{dom_id, product} <- @streams.products}
+    id={dom_id}
+    class="flex flex-col bg-white hover:bg-gray-100 cursor-pointer border border-gray-400 shadow rounded-lg"
+    phx-click={JS.navigate(~p"/products/#{product}")}
+  >
+    <img
+      class="grow p-6 object-contain"
+      src={product.thumbnail}
+      title={product.name}
+      alt={product.name}
+    />
+    <div class="px-6 py-4 border-t border-gray-400">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 pb-2">
+        <%= product.name %>
+      </h3>
+      <p class="text-sm text-gray-500"><%= product.description %></p>
     </div>
-    <.link patch={~p"/products/#{product}/edit"}>Edit</.link>
-  </:action>
-  <:action :let={{id, product}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: product.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:action>
-</.table>
+    <div class="px-6 py-4 border-t border-gray-400">
+        <%= product.stock %> remaining
+    </div>
+    <div class="p-6 py-4 border-t border-gray-400 text-xl">
+      <div class="flex flex-col items-left">
+        <%= Money.new(product.amount) %>
+        <button
+          phx-click="add_to_cart"
+          phx-value-id={product.id}
+          class="focus:outline-none focus:shadow-outline text-sm bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 mt-2 rounded"
+        > 
+          Add To Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <.modal :if={@live_action in [:new, :edit]} id="product-modal" show on_cancel={JS.patch(~p"/products")}>
   <.live_component
