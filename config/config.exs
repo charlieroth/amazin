@@ -14,7 +14,7 @@ config :amazin,
 # Configures the endpoint
 config :amazin, AmazinWeb.Endpoint,
   url: [host: "localhost"],
-  adapter: Phoenix.Endpoint.Cowboy2Adapter,
+  adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: AmazinWeb.ErrorHTML, json: AmazinWeb.ErrorJSON],
     layout: false
