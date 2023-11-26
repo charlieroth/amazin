@@ -1,11 +1,12 @@
 defmodule Amazin.Store.CartItem do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Amazin.Store.Product
 
   schema "cart_items" do
     field :quantity, :integer
     field :cart_id, :id
-    field :product_id, :id
+    belongs_to :product, Product
 
     timestamps(type: :utc_datetime)
   end

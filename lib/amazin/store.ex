@@ -6,6 +6,8 @@ defmodule Amazin.Store do
   import Ecto.Query, warn: false
   alias Amazin.Repo
   alias Amazin.Store.Product
+  alias Amazin.Store.Cart
+  alias Amazin.Store.CartItem
 
   @doc """
   Subscribes you to product events
@@ -125,5 +127,24 @@ defmodule Amazin.Store do
   """
   def change_product(%Product{} = product, attrs \\ %{}) do
     Product.changeset(product, attrs)
+  end
+
+  def create_cart() do
+    Repo.insert(%Cart{status: :open})
+  end
+
+  def list_cart_items(cart_id) do
+    CartItem
+    |> where([ci], ci.cart_id == ^cart_id)
+    |> preload(:product)
+    |> Repo.all()
+  end
+
+  def add_item_to_cart(cart_id, product) do
+    %CartItem{cart_id: cart_id, product_id: product.id, quantity: 1}
+    |> Repo.insert(
+      conflict_target: [:cart_id, :product_id],
+      on_conflict: [:inc, [:quanity, 1]]
+    )
   end
 end
