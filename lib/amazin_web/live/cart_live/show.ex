@@ -42,9 +42,9 @@ defmodule AmazinWeb.CartLive.Show do
               description: ci.product.description,
               images: [ci.product.thumbnail]
             },
-            unit_amount: ci.product.amount,
-            quantity: ci.quantity
-          }
+            unit_amount: ci.product.amount
+          },
+          quantity: ci.quantity
         }
       end)
 
