@@ -8,6 +8,7 @@ defmodule Amazin.Store do
   alias Amazin.Store.Product
   alias Amazin.Store.Cart
   alias Amazin.Store.CartItem
+  alias Amazin.Store.Order
 
   @doc """
   Subscribes you to product events
@@ -150,5 +151,19 @@ defmodule Amazin.Store do
       conflict_target: [:cart_id, :product_id],
       on_conflict: [inc: [quantity: 1]]
     )
+  end
+
+  def create_order(cart_id) do
+    cart_id
+    |> get_cart()
+    |> Cart.changeset(%{status: :completed})
+    |> Repo.update()
+    |> case do
+      {:ok, cart} ->
+        Repo.insert(%Order{cart_id: cart.id})
+
+      error ->
+        error
+    end
   end
 end
