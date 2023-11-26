@@ -38,3 +38,6 @@ npm-debug.log
 # Ignore elixir lsp files
 /.elixir_ls/
 /.elixir-tools/
+
+# Ignore dev env secrets
+/config/dev.secret.exs
