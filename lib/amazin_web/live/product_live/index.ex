@@ -6,6 +6,8 @@ defmodule AmazinWeb.ProductLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: Store.subscribe_to_product_events()
+
     {:ok, stream(socket, :products, Store.list_products())}
   end
 
@@ -30,6 +32,16 @@ defmodule AmazinWeb.ProductLive.Index do
     socket
     |> assign(:page_title, "Listing Products")
     |> assign(:product, nil)
+  end
+
+  @impl true
+  def handle_info({:product_created, product}, socket) do
+    {:noreply, stream_insert(socket, :products, product)}
+  end
+
+  @impl true
+  def handle_info({:product_updated, product}, socket) do
+    {:noreply, stream_insert(socket, :products, product)}
   end
 
   @impl true

@@ -5,8 +5,23 @@ defmodule Amazin.Store do
 
   import Ecto.Query, warn: false
   alias Amazin.Repo
-
   alias Amazin.Store.Product
+
+  @doc """
+  Subscribes you to product events
+  """
+  @spec subscribe_to_product_events() :: :ok | {:error, term()}
+  def subscribe_to_product_events() do
+    Phoenix.PubSub.subscribe(Amazin.PubSub, "products")
+  end
+
+  @doc """
+  Broadcasts a product event
+  """
+  @spec broadcast_product_event(event :: atom(), product :: Product.t()) :: :ok | {:error, term()}
+  def broadcast_product_event(event, product) do
+    Phoenix.PubSub.broadcast(Amazin.PubSub, "products", {event, product})
+  end
 
   @doc """
   Returns the list of products.
@@ -38,39 +53,49 @@ defmodule Amazin.Store do
   def get_product!(id), do: Repo.get!(Product, id)
 
   @doc """
-  Creates a product.
+  Creates a product
 
-  ## Examples
+  Publishes a `:product_created` event on success
 
-      iex> create_product(%{field: value})
-      {:ok, %Product{}}
-
-      iex> create_product(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
+  Returns resulting errors on failure
   """
   def create_product(attrs \\ %{}) do
-    %Product{}
-    |> Product.changeset(attrs)
-    |> Repo.insert()
+    result =
+      %Product{}
+      |> Product.changeset(attrs)
+      |> Repo.insert()
+
+    case result do
+      {:ok, product} ->
+        broadcast_product_event(:product_created, product)
+        {:ok, product}
+
+      error ->
+        error
+    end
   end
 
   @doc """
-  Updates a product.
+  Updates a product
 
-  ## Examples
+  Publishes a `:product_updated` event on success
 
-      iex> update_product(product, %{field: new_value})
-      {:ok, %Product{}}
-
-      iex> update_product(product, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
+  Returns resulting errors on failure
   """
   def update_product(%Product{} = product, attrs) do
-    product
-    |> Product.changeset(attrs)
-    |> Repo.update()
+    result =
+      product
+      |> Product.changeset(attrs)
+      |> Repo.update()
+
+    case result do
+      {:ok, product} ->
+        broadcast_product_event(:product_updated, product)
+        {:ok, product}
+
+      error ->
+        error
+    end
   end
 
   @doc """
