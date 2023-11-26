@@ -129,6 +129,10 @@ defmodule Amazin.Store do
     Product.changeset(product, attrs)
   end
 
+  def get_cart(cart_id) do
+    Repo.get(Cart, cart_id)
+  end
+
   def create_cart() do
     Repo.insert(%Cart{status: :open})
   end
@@ -144,7 +148,7 @@ defmodule Amazin.Store do
     %CartItem{cart_id: cart_id, product_id: product.id, quantity: 1}
     |> Repo.insert(
       conflict_target: [:cart_id, :product_id],
-      on_conflict: [:inc, [:quanity, 1]]
+      on_conflict: [inc: [quantity: 1]]
     )
   end
 end

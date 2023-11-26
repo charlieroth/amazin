@@ -8,6 +8,7 @@ defmodule AmazinWeb.Router do
     plug :put_root_layout, html: {AmazinWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug AmazinWeb.Plugs.SessionCart
   end
 
   pipeline :api do
@@ -24,6 +25,8 @@ defmodule AmazinWeb.Router do
     live "/products/:id/edit", ProductLive.Index, :edit
     live "/products/:id", ProductLive.Show, :show
     live "/products/:id/show/edit", ProductLive.Show, :edit
+    live "/cart", CartLive.Show, :index
+    live "/cart/success", CartLive.Success, :index
   end
 
   if Application.compile_env(:amazin, :dev_routes) do
