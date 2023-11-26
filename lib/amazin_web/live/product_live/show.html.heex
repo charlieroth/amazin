@@ -1,24 +1,33 @@
 <.header>
-  Product <%= @product.id %>
-  <:subtitle>This is a product record from your database.</:subtitle>
+  <.back navigate={~p"/products"}>Back to products</.back>
   <:actions>
     <.link patch={~p"/products/#{@product}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit product</.button>
+      <.button>Edit</.button>
     </.link>
   </:actions>
 </.header>
 
-<.list>
-  <:item title="Amount"><%= @product.amount %></:item>
-  <:item title="Description"><%= @product.description %></:item>
-  <:item title="Name"><%= @product.name %></:item>
-  <:item title="Stock"><%= @product.stock %></:item>
-  <:item title="Thumbnail"><%= @product.thumbnail %></:item>
-</.list>
+<div class="grid grid-cols-2 gap-16 p-4">
+  <img
+    class="grow object-contain"
+    src={@product.thumbnail}
+    title={@product.name}
+    alt={@product.name}
+  />
+  <div class="pt-8">
+    <h1 class="text-4xl pb-2"><%= @product.name %></h1>
+    <div class="text-gray-500 pb-8"><%= @product.description %></div>
+    <div class="font-bold text-5xl"><%= Money.new(@product.amount) %></div>
+    <div><%= @product.stock %> remaining</div>
+  </div>
+</div>
 
-<.back navigate={~p"/products"}>Back to products</.back>
-
-<.modal :if={@live_action == :edit} id="product-modal" show on_cancel={JS.patch(~p"/products/#{@product}")}>
+<.modal 
+  :if={@live_action == :edit}
+  id="product-modal"
+  show
+  on_cancel={JS.patch(~p"/products/#{@product}")}
+>
   <.live_component
     module={AmazinWeb.ProductLive.FormComponent}
     id={@product.id}
